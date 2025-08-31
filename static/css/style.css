@@ -1,0 +1,284 @@
+/* Custom CSS for Pi MP3 Player */
+
+/* Upload Zone Styling */
+.upload-zone {
+    border: 3px dashed #6c757d;
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(108, 117, 125, 0.1);
+}
+
+.upload-zone:hover {
+    border-color: #0d6efd;
+    background: rgba(13, 110, 253, 0.1);
+    transform: translateY(-2px);
+}
+
+.upload-zone.dragover {
+    border-color: #198754;
+    background: rgba(25, 135, 84, 0.2);
+    transform: scale(1.02);
+}
+
+/* Player Controls */
+.player-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.player-controls .btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.player-controls .btn:hover:not(:disabled) {
+    transform: scale(1.1);
+}
+
+.player-controls .btn:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+/* Playlist Items */
+.playlist-item {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none !important;
+}
+
+.playlist-item:hover {
+    background-color: rgba(13, 110, 253, 0.1) !important;
+    transform: translateX(5px);
+}
+
+.playlist-item.active {
+    background-color: rgba(13, 110, 253, 0.2) !important;
+    border-left: 4px solid #0d6efd !important;
+}
+
+.playlist-item .song-info {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.playlist-item .song-title {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.playlist-item .song-meta {
+    font-size: 0.875rem;
+    opacity: 0.7;
+}
+
+.playlist-item .song-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.playlist-item .btn-sm {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Volume Slider */
+.form-range {
+    background: transparent;
+}
+
+.form-range::-webkit-slider-track {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    height: 6px;
+}
+
+.form-range::-webkit-slider-thumb {
+    background: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    -webkit-appearance: none;
+}
+
+.form-range::-moz-range-track {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    height: 6px;
+    border: none;
+}
+
+.form-range::-moz-range-thumb {
+    background: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+}
+
+/* Progress Bar Animations */
+.progress {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.3s ease;
+    border-radius: 10px;
+}
+
+/* Active Button States */
+.btn-active {
+    background-color: #0d6efd !important;
+    color: white !important;
+    border-color: #0d6efd !important;
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 2rem;
+    }
+    
+    .player-controls .btn {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .playlist-item .song-controls {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .upload-zone {
+        padding: 1rem;
+    }
+}
+
+/* Loading Animations */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Custom Scrollbar */
+.card-body {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.card-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.card-body::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.card-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.card-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Alert Animations */
+.alert {
+    animation: slideDown 0.3s ease;
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Pulse Animation for Active Song */
+.playlist-item.playing .song-title {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+/* File Size and Duration Display */
+.file-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* Upload Progress Styling */
+#upload-progress .progress {
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+#upload-progress .progress-bar {
+    background: linear-gradient(90deg, #198754, #20c997);
+}
+
+/* Button Hover Effects */
+.btn-outline-light:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Dark Theme Enhancements */
+.bg-dark {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+}
+
+.card.bg-secondary {
+    background: linear-gradient(135deg, #3d4142 0%, #525659 100%) !important;
+}
+
+.card.bg-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #3d8bfd 100%) !important;
+}
