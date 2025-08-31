@@ -6,7 +6,7 @@ class MP3Player {
     constructor() {
         this.currentSong = null;
         this.isPlaying = false;
-        this.playlist = [];
+        this.playlistData = [];  // Changed from this.playlist to avoid conflict
         this.currentIndex = -1;
         this.volume = 0.7;
         this.shuffle = false;
@@ -41,7 +41,7 @@ class MP3Player {
         this.repeatBtn = document.getElementById('repeat-btn');
         
         // Playlist elements
-        this.playlist = document.getElementById('playlist');
+        this.playlistElement = document.getElementById('playlist');
         this.playlistCount = document.getElementById('playlist-count');
         this.alertContainer = document.getElementById('alert-container');
     }
@@ -154,7 +154,7 @@ class MP3Player {
             const response = await fetch('/api/files');
             const data = await response.json();
             
-            this.playlist = data.files;
+            this.playlistData = data.files;  // Changed from this.playlist to this.playlistData
             this.currentSong = data.current_song;
             this.isPlaying = data.is_playing;
             this.currentIndex = data.current_index;
@@ -173,10 +173,10 @@ class MP3Player {
     }
 
     updatePlaylistDisplay() {
-        this.playlistCount.textContent = `${this.playlist.length} şarkı`;
+        this.playlistCount.textContent = `${this.playlistData.length} şarkı`;
         
-        if (this.playlist.length === 0) {
-            this.playlist.innerHTML = `
+        if (this.playlistData.length === 0) {
+            this.playlistElement.innerHTML = `
                 <div class="list-group-item bg-secondary text-center text-muted py-4">
                     <i class="fas fa-music fa-2x mb-2"></i>
                     <p class="mb-0">Henüz şarkı yüklenmemiş</p>
@@ -185,7 +185,7 @@ class MP3Player {
             return;
         }
 
-        this.playlist.innerHTML = this.playlist.map((song, index) => `
+        this.playlistElement.innerHTML = this.playlistData.map((song, index) => `
             <div class="list-group-item playlist-item bg-secondary text-light d-flex align-items-center p-3 ${index === this.currentIndex ? 'active playing' : ''}" 
                  data-index="${index}">
                 <div class="song-info me-3">
@@ -233,7 +233,7 @@ class MP3Player {
     }
 
     updateControlStates() {
-        const hasPlaylist = this.playlist.length > 0;
+        const hasPlaylist = this.playlistData.length > 0;  // Changed from this.playlist to this.playlistData
         
         this.playPauseBtn.disabled = !hasPlaylist;
         this.stopBtn.disabled = !hasPlaylist;
@@ -247,7 +247,7 @@ class MP3Player {
 
     // Player Controls
     async togglePlayPause() {
-        if (!this.currentSong && this.playlist.length > 0) {
+        if (!this.currentSong && this.playlistData.length > 0) {  // Changed from this.playlist to this.playlistData
             // İlk şarkıyı başlat
             await this.playSong(0);
             return;
