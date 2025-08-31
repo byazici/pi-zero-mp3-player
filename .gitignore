@@ -1,0 +1,8 @@
+venv
+
+
+# Ignore all files in the uploads directory
+/uploads/*
+
+# But keep the uploads directory itself
+!/uploads/.gitkeep
