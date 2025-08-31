@@ -46,14 +46,44 @@ volume = 0.7
 shuffle_mode = False
 repeat_mode = False
 
-# Pygame mixer'ı başlat
-try:
-    pygame.mixer.pre_init(frequency=44100, size=-16, channels=2, buffer=2048)
-    pygame.mixer.init()
-    pygame.mixer.music.set_volume(volume)
-    logger.info("Pygame mixer başlatıldı")
-except pygame.error as e:
-    logger.error(f"Ses sistemi başlatılamadı: {e}")
+# Pygame mixer'ı başlat - Pi Zero W için optimize edilmiş ayarlar
+mixer_initialized = False
+audio_settings = [
+    # En uyumlu ayarlar ilk sırada
+    {'frequency': 22050, 'size': -16, 'channels': 2, 'buffer': 4096},
+    {'frequency': 44100, 'size': -16, 'channels': 2, 'buffer': 2048},
+    {'frequency': 22050, 'size': -16, 'channels': 1, 'buffer': 4096},
+    {'frequency': 11025, 'size': -16, 'channels': 2, 'buffer': 8192},
+]
+
+for i, settings in enumerate(audio_settings):
+    try:
+        # Önceki mixer'ı temizle
+        if mixer_initialized:
+            pygame.mixer.quit()
+        
+        # Yeni ayarlarla dene
+        pygame.mixer.pre_init(**settings)
+        pygame.mixer.init()
+        pygame.mixer.music.set_volume(volume)
+        
+        mixer_initialized = True
+        logger.info(f"Pygame mixer başlatıldı (ayar {i+1}): {settings}")
+        break
+        
+    except pygame.error as e:
+        logger.warning(f"Mixer ayarı {i+1} başarısız: {settings} - {e}")
+        continue
+
+if not mixer_initialized:
+    logger.error("HİÇBİR ses ayarı çalışmadı! Ses çıkışı olmayabilir.")
+    # Mixer olmasa da uygulamayı çalıştır
+    try:
+        pygame.mixer.init()
+        mixer_initialized = True
+        logger.info("Varsayılan pygame mixer ile devam ediliyor")
+    except:
+        logger.critical("Pygame mixer hiç başlatılamadı - ses devre dışı!")
 
 
 def allowed_file(filename):
@@ -357,22 +387,39 @@ def delete_file(filename):
 @app.route('/api/status')
 def get_status():
     """Çalar durumunu döndür"""
-    # Pygame'in müzik durumunu kontrol et
-    if pygame.mixer.music.get_busy():
-        # Müzik çalıyor ama bizim değişkenimiz False ise düzelt
-        if not is_playing:
-            globals()['is_playing'] = True
-    else:
-        # Müzik bitmiş, sonraki şarkıya geç (repeat mode kontrolü ile)
-        if is_playing:
-            if repeat_mode and current_song:
-                # Aynı şarkıyı tekrar çal
-                pygame.mixer.music.play()
-            elif playlist:
-                # Sonraki şarkıya geç
-                next_song()
-            else:
-                globals()['is_playing'] = False
+    global is_playing
+    
+    # Pygame'in müzik durumunu kontrol et (güvenli şekilde)
+    try:
+        if mixer_initialized and pygame.mixer.get_init():
+            music_busy = pygame.mixer.music.get_busy()
+            
+            if music_busy and not is_playing:
+                # Müzik çalıyor ama değişkenimiz False ise düzelt
+                is_playing = True
+            elif not music_busy and is_playing:
+                # Müzik bitmiş, sonraki şarkıya geç (repeat mode kontrolü ile)
+                if repeat_mode and current_song:
+                    # Aynı şarkıyı tekrar çal
+                    result = safe_mixer_operation(lambda: pygame.mixer.music.play())
+                    if 'error' not in result:
+                        logger.info(f"Şarkı tekrar ediliyor: {current_song['title']}")
+                elif playlist:
+                    # Sonraki şarkıya geç
+                    next_song()
+                else:
+                    is_playing = False
+        else:
+            # Mixer mevcut değilse
+            logger.warning("Mixer mevcut değil, durumu False olarak ayarlanıyor")
+            is_playing = False
+            
+    except pygame.error as e:
+        logger.warning(f"Status check mixer error: {e}")
+        # Mixer hatası varsa False olarak ayarla
+        is_playing = False
+    except Exception as e:
+        logger.warning(f"Status check error: {e}")
     
     return jsonify({
         'current_song': current_song,
@@ -381,7 +428,8 @@ def get_status():
         'volume': volume,
         'shuffle': shuffle_mode,
         'repeat': repeat_mode,
-        'playlist_length': len(playlist)
+        'playlist_length': len(playlist),
+        'mixer_available': mixer_initialized and pygame.mixer.get_init() is not None
     })
 
 
@@ -394,7 +442,7 @@ if __name__ == '__main__':
     # Uygulamayı başlat
     app.run(
         host='0.0.0.0',
-        port=5001,
+        port=5000,
         debug=False,
         threaded=True
     )
